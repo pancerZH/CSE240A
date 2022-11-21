@@ -67,4 +67,22 @@ uint8_t make_prediction(uint32_t pc);
 //
 void train_predictor(uint32_t pc, uint8_t outcome);
 
+void init_gshare_predictor();
+
+uint32_t construct_mask(int size);
+
+uint32_t update_history(uint32_t* history, uint8_t res);
+
+void train_gshare(uint32_t pc, uint8_t res);
+
+int8_t predict_gshare(uint32_t pc);
+
+int* init_prediction_table(int bits, uint8_t counterType);
+
+void update_prediction_table(int* table, uint32_t index, uint8_t res);
+
+uint32_t init_history(int higtoryLength, int initBit);
+
+uint8_t two_bit_predictor(int counter);
+
 #endif
