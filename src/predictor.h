@@ -69,13 +69,23 @@ void train_predictor(uint32_t pc, uint8_t outcome);
 
 void init_gshare_predictor();
 
+void init_local_predictor();
+
+void init_tournament_predictor();
+
+uint32_t * init_history_table(int bits, uint32_t state);
+
 uint32_t construct_mask(int size);
 
 uint32_t update_history(uint32_t* history, uint8_t res);
 
 void train_gshare(uint32_t pc, uint8_t res);
 
+void train_tournament(uint32_t pc, uint8_t res);
+
 int8_t predict_gshare(uint32_t pc);
+
+int8_t predict_tournament(uint32_t pc);
 
 int* init_prediction_table(int bits, uint8_t counterType);
 
