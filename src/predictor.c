@@ -82,11 +82,7 @@ init_predictor()
 
 uint32_t
 construct_mask(int size) {
-  uint32_t mask = 0;
-  for(int i=0; i<size; i++) {
-    mask <<= 1;
-    mask += 1;
-  }
+  uint32_t mask = (1 << size) - 1;
   return mask;
 }
 
@@ -98,7 +94,7 @@ init_gshare_predictor() {
   //TODO: Initialize GSHARE Branch Predictor Data Structures
   //
   branchHistoryTable = init_prediction_table(ghistoryBits, WN);
-  globalHistory = init_history(ghistoryBits, NOTTAKEN);
+  globalHistory = 0;
   globalMask = construct_mask(ghistoryBits);
 }
 
@@ -158,7 +154,7 @@ predict_tournament(uint32_t pc) {
 void
 init_local_predictor() {
   localPredcitionTable = init_prediction_table(lhistoryBits, WN);
-  localHistory = init_history(lhistoryBits, NOTTAKEN);
+  localHistory = 0;
   localHistoryTable = init_history_table(pcIndexBits, localHistory);
   localMask = construct_mask(lhistoryBits);
 }
@@ -170,7 +166,7 @@ init_tournament_predictor() {
   init_gshare_predictor();
   init_local_predictor();
   // Take means take gloabl predictor
-  chooserTable = init_history_table(ghistoryBits, WT);
+  chooserTable = init_history_table(ghistoryBits, WN);
   pcMask = construct_mask(pcIndexBits);
 }
 
@@ -207,16 +203,6 @@ void update_prediction_table(int* table, uint32_t index, uint8_t res) {
     }
     table[index]--;
   }
-}
-
-uint32_t
-init_history(int higtoryLength, int initBit) {
-  uint32_t history = 0;
-  for(int i=0; i<higtoryLength; i++) {
-    history <<= 1;
-    history += initBit;
-  }
-  return history;
 }
 
 uint32_t

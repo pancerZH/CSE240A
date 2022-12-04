@@ -91,8 +91,6 @@ int* init_prediction_table(int bits, uint8_t counterType);
 
 void update_prediction_table(int* table, uint32_t index, uint8_t res);
 
-uint32_t init_history(int higtoryLength, int initBit);
-
 uint8_t two_bit_predictor(int counter);
 
 #endif
