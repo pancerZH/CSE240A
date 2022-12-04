@@ -166,7 +166,7 @@ init_tournament_predictor() {
   init_gshare_predictor();
   init_local_predictor();
   // Take means take gloabl predictor
-  chooserTable = init_history_table(ghistoryBits, WN);
+  chooserTable = init_history_table(ghistoryBits, WT);
   pcMask = construct_mask(pcIndexBits);
 }
 
