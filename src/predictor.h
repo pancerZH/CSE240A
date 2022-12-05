@@ -73,6 +73,8 @@ void init_local_predictor();
 
 void init_tournament_predictor();
 
+void init_perceptron();
+
 uint32_t * init_history_table(int bits, uint32_t state);
 
 uint32_t construct_mask(int size);
@@ -83,9 +85,13 @@ void train_gshare(uint32_t pc, uint8_t res);
 
 void train_tournament(uint32_t pc, uint8_t res);
 
+void train_perceptron(uint32_t pc, uint8_t res);
+
 int8_t predict_gshare(uint32_t pc);
 
 int8_t predict_tournament(uint32_t pc);
+
+int8_t predict_perceptron(uint32_t pc);
 
 int* init_prediction_table(int bits, uint8_t counterType);
 

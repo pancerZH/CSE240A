@@ -7,6 +7,7 @@
 //========================================================//
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "predictor.h"
 
 //
@@ -52,6 +53,17 @@ int* chooserTable;
 uint32_t pcMask;
 
 
+#define PCSIZE 427
+#define PERCEPTRON_HEIGHT 19
+#define PERCEPTRON_SATUATELEN 8
+#define PERCEPTRON_MASK_PC(x) ((x * 19) % PCSIZE)
+
+int16_t perceptron[PCSIZE][PERCEPTRON_HEIGHT + 1];
+int16_t perceptronGHistory[PERCEPTRON_HEIGHT];
+int32_t perceptronTrainTheta;
+uint8_t perceptronRecentPrediction = NOTTAKEN;
+uint8_t perceptronNeedTrain = 0;
+
 //------------------------------------//
 //        Predictor Functions         //
 //------------------------------------//
@@ -74,6 +86,7 @@ init_predictor()
       init_tournament_predictor();
       break;
     case CUSTOM:
+      init_perceptron();
       break;
     default:
       break;
@@ -221,6 +234,53 @@ two_bit_predictor(int counter) {
   return TAKEN;
 }
 
+void perceptron_shift(int16_t* satuate, uint8_t same){
+  if(same){
+    if(*satuate != ((1 << (PERCEPTRON_SATUATELEN - 1)) - 1)){
+      (*satuate)++;
+    }
+  }else{
+    if(*satuate != -(1 << (PERCEPTRON_SATUATELEN - 1 ) )){
+      (*satuate)--;
+    }
+  }
+}
+
+void init_perceptron(){
+  perceptronTrainTheta = (int32_t)(1.93 * PERCEPTRON_HEIGHT + 14);
+  memset(perceptron, 0, sizeof(int16_t) * PCSIZE * (PERCEPTRON_HEIGHT + 1));
+  memset(perceptronGHistory, 0, sizeof(uint16_t) * PERCEPTRON_HEIGHT);
+}
+
+int8_t predict_perceptron(uint32_t pc){
+  uint32_t index = PERCEPTRON_MASK_PC(pc);
+  int16_t out = perceptron[index][0];
+
+  for(int i = 1 ; i <= PERCEPTRON_HEIGHT ; i++){
+    out += perceptronGHistory[i-1] ? perceptron[index][i] : -perceptron[index][i];
+  }
+
+  perceptronRecentPrediction = (out >= 0) ? TAKEN : NOTTAKEN;
+  perceptronNeedTrain = (out < perceptronTrainTheta && out > -perceptronTrainTheta) ? 1 : 0;
+
+  return perceptronRecentPrediction;
+}
+
+void train_perceptron(uint32_t pc, uint8_t outcome){
+  uint32_t index = PERCEPTRON_MASK_PC(pc);
+  if((perceptronRecentPrediction != outcome) || perceptronNeedTrain){
+    perceptron_shift(&(perceptron[index][0]), outcome);
+    for(int i = 1 ; i <= PERCEPTRON_HEIGHT ; i++){
+      uint8_t predict = perceptronGHistory[i-1];
+      perceptron_shift(&(perceptron[index][i]), (outcome == predict));
+    }
+  }
+  for(int i = PERCEPTRON_HEIGHT - 1; i > 0 ; i--){
+    perceptronGHistory[i] = perceptronGHistory[i-1];
+  }
+  perceptronGHistory[0] = outcome;
+}
+
 // Make a prediction for conditional branch instruction at PC 'pc'
 // Returning TAKEN indicates a prediction of taken; returning NOTTAKEN
 // indicates a prediction of not taken
@@ -241,6 +301,7 @@ make_prediction(uint32_t pc)
     case TOURNAMENT:
       return predict_tournament(pc);
     case CUSTOM:
+      return predict_perceptron(pc);
     default:
       break;
   }
@@ -269,6 +330,7 @@ train_predictor(uint32_t pc, uint8_t outcome)
       train_tournament(pc, outcome);
       break;
     case CUSTOM:
+      train_perceptron(pc, outcome);
     default:
       break;
   }
