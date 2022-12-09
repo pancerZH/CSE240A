@@ -53,8 +53,8 @@ int* chooserTable;
 uint32_t pcMask;
 
 
-#define PCSIZE 427
-#define PERCEPTRON_HEIGHT 19
+#define PCSIZE 600
+#define PERCEPTRON_HEIGHT 30
 #define PERCEPTRON_SATUATELEN 8
 #define PERCEPTRON_MASK_PC(x) ((x * 19) % PCSIZE)
 
@@ -247,7 +247,7 @@ void perceptron_shift(int16_t* satuate, uint8_t same){
 }
 
 void init_perceptron(){
-  perceptronTrainTheta = (int32_t)(1.93 * PERCEPTRON_HEIGHT + 14);
+  perceptronTrainTheta = (int32_t)(2.14 * PERCEPTRON_HEIGHT + 20);
   memset(perceptron, 0, sizeof(int16_t) * PCSIZE * (PERCEPTRON_HEIGHT + 1));
   memset(perceptronGHistory, 0, sizeof(uint16_t) * PERCEPTRON_HEIGHT);
 }
